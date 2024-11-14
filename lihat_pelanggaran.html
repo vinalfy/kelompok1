@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Melihat Pelanggaran Siswa</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        h2, h3 {
+            color: #333;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            padding: 8px;
+            background-color: #f9f9f9;
+            margin-bottom: 5px;
+            border-left: 5px solid #ff6b6b;
+            text-align: left;
+        }
+        .total {
+            font-weight: bold;
+            color: #d9534f;
+        }
+        .input-section {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        input[type="number"] {
+            padding: 12px;
+            width: 70%;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: 0.3s ease;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
+            outline: none;
+            background-color: #fafafa;
+        }
+        img {
+            width: 100px; /* Ukuran logo */
+            height: auto;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 12px 30px;
+            background-color: #001f3f;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: 0.3s ease;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #001a35;
+        }
+        .error {
+            color: red;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5c3ERGSRkZVCQk8rczopM24FBkmM69QstBQ&s" alt="Logo SMPN 5 Bandung" />
+        <h2>Melihat Pelanggaran Siswa</h2>
+        <div class="input-section">
+            <input type="number" id="nisnSiswa" placeholder="Masukkan NISN Siswa" />
+        </div>
+        <button onclick="generatePelanggaran()">Lihat Pelanggaran</button>
+        
+        <h3 id="hasilNama"></h3>
+        <ul id="listPelanggaran"></ul>
+        <p id="totalPoin" class="total"></p>
+        <p id="errorMessage" class="error"></p>
+    </div>
+
+    <script>
+        const MAX_POIN = 100;
+
+        function generatePelanggaran() {
+            const nisnSiswa = document.getElementById("nisnSiswa").value;
+            const errorMessage = document.getElementById("errorMessage");
+
+            if (!nisnSiswa) {
+                errorMessage.textContent = "Masukkan NISN Terlebih Dahulu ";
+                return;
+            }
+
+            // Mengambil data siswa dari Local Storage
+            const siswaData = JSON.parse(localStorage.getItem("siswaData")) || {};
+            if (!siswaData[nisnSiswa]) {
+                errorMessage.textContent = "NISN SALAH!";
+                return;
+            }
+
+            errorMessage.textContent = "";
+            const siswa = siswaData[nisnSiswa];
+
+            // Menampilkan nama siswa
+            const hasilNama = document.getElementById("hasilNama");
+            hasilNama.textContent = `Total Poin Pelanggaran untuk ${siswa.nama || 'Vino Alfiano Yusuf'}: ${siswa.totalPoin}`;
+
+            const listPelanggaran = document.getElementById("listPelanggaran");
+            listPelanggaran.innerHTML = "";
+
+            siswa.pelanggaran.forEach(pelanggaranItem => {
+                const li = document.createElement("li");
+                li.textContent = `${pelanggaranItem.nama} - Poin ${pelanggaranItem.poin}`;
+                listPelanggaran.appendChild(li);
+            });
+
+            const totalPoinElement = document.getElementById("totalPoin");
+            totalPoinElement.textContent = "Total Poin: " + siswa.totalPoin + " / " + MAX_POIN;
+        }
+    </script>
+
+</body>
+</html>

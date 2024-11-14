@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Input Pelanggaran</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            background-color: #fff;
+            padding: 50px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        input[type="text"], input[type="number"] {
+            padding: 15px;
+            width: 100%;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            background-color: #fafafa;
+        }
+        img {
+            width: 100px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 15px 40px;
+            background-color: #001f3f;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: 0.3s;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #001a35;
+        }
+        .success {
+            color: rgb(8, 209, 8);
+            margin-top: 10px;
+        }
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5c3ERGSRkZVCQk8rczopM24FBkmM69QstBQ&s" alt="Logo SMPN 5 Bandung" />
+        <h1>Input Pelanggaran</h1>
+        
+        <input type="number" id="nisn" placeholder="Masukkan NISN" />
+        <input type="text" id="namaSiswa" placeholder="Masukkan Nama Siswa" />
+        <input type="text" id="kelasSiswa" placeholder="Masukkan Kelas" />
+        <input type="text" id="pelanggaran" placeholder="Masukkan Jenis Pelanggaran" />
+        <input type="number" id="poin" placeholder="Masukkan Poin Pelanggaran" />
+        <button onclick="kirimPelanggaran()">Kirim Pelanggaran</button>
+        <p id="message" class="error"></p>
+    </div>
+
+    <script>
+        const MAX_POIN = 100;
+
+        // Load student data from LocalStorage
+        const siswaData = JSON.parse(localStorage.getItem("siswaData")) || {};
+
+        function kirimPelanggaran() {
+            const nisn = document.getElementById("nisn").value;
+            const namaSiswa = document.getElementById("namaSiswa").value;
+            const kelasSiswa = document.getElementById("kelasSiswa").value;
+            const pelanggaran = document.getElementById("pelanggaran").value;
+            const poin = parseInt(document.getElementById("poin").value);
+            const messageElement = document.getElementById("message");
+
+            // Validate inputs
+            if (!nisn || !namaSiswa || !kelasSiswa || !pelanggaran || isNaN(poin)) {
+                messageElement.textContent = "Harap lengkapi semua input!";
+                messageElement.classList.add("error");
+                messageElement.classList.remove("success");
+                return;
+            }
+
+            if (!siswaData[nisn]) {
+                messageElement.textContent = "NISN tidak ditemukan!";
+                messageElement.classList.add("error");
+                messageElement.classList.remove("success");
+                return;
+            }
+
+            const siswa = siswaData[nisn];
+
+            // Add violation
+            if (siswa.totalPoin + poin > MAX_POIN) {
+                messageElement.textContent = `Total poin melebihi batas maksimal (${MAX_POIN})!`;
+                messageElement.classList.add("error");
+                messageElement.classList.remove("success");
+                return;
+            }
+
+            siswa.pelanggaran.push({ nama: pelanggaran, poin: poin });
+            siswa.totalPoin += poin;
+
+            // Save back to LocalStorage
+            localStorage.setItem("siswaData", JSON.stringify(siswaData));
+
+            // Show success message
+            messageElement.textContent = `Pelanggaran berhasil ditambahkan! Total Poin: ${siswa.totalPoin}`;
+            messageElement.classList.add("success");
+            messageElement.classList.remove("error");
+
+            // Clear input fields
+            document.getElementById("nisn").value = "";
+            document.getElementById("namaSiswa").value = "";
+            document.getElementById("kelasSiswa").value = "";
+            document.getElementById("pelanggaran").value = "";
+            document.getElementById("poin").value = "";
+        }
+    </script>
+
+</body>
+</html>
